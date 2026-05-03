@@ -1,0 +1,110 @@
+Part 1 Create 3 ubuntu VM’s
+1ˢᵗ - ansible_master 
+2ⁿᵈ target 1
+3ʳᵈ target 2
+
+-------------------------------------
+
+Part 2 install Ansible and requies tools in ansible_master 
+Step 4 go to ansible_master VM update the ubuntu and install some dependencies and ansible
+
+apt update
+apt install python-is-python3 
+apt install software-properties-common
+add-apt-repository --yes --update ppa:ansible/ansible
+apt install ansible
+ansible --version
+
+-----------------------------------------
+
+Part 3 Setup n number of target machines (2)/ container(2)Login to Target and setup target 1 
+Step 5  Login to target 1 
+apt update
+apt install vim python-is-python3
+
+--------------------------------------------
+
+Step 6 edit sshd_config to allow SSH and root login as ansible requires
+cd /etc/ssh 
+vi sshd_config
+uncomment the parameter and modify the permission to yes PermitRootLogin yes and PasswordAuthentication yes
+
+Step 7 Start the service ssh if its not running
+service ssh status
+service ssh start 
+service ssh status  
+
+Step 8 change the root password to admin 
+passwd root
+Admin
+Admin
+
+--------------------------------------------
+
+Part 4 Use vm image and create more target machine
+
+-----------------------------------------------------------
+
+Part 5  Find the IP’s of all targets vm  for adding in ansible host file 
+
+--------------------------------------------------------------
+
+Part 6 setup ansible_master for ssh connectivity  and adding IP’s in hostfile
+
+ex-  
+[servers]
+server1 ansible_host=3.253.17.33
+server2 ansible_host=34.244.212.82
+server3 ansible_host=18.201.126.38
+
+[servers:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=terra-ansible-multi-env/terraform/tws-terra-key
+ansible_python_interpreter=/usr/bin/python3
+
+-----------------------------------------------------------------------
+
+Step 9  go to ansible_master
+Step 13 edit ansible host file and provide the target IP’s
+cd /etc/ansible/
+ls
+Go to hosts file   
+provide the IP of the target machines   like 172.17.0.3
+Step 10 verify as you are able to ping target machine from ansible_master
+ping  <Target machine IP>
+
+go back to master machine
+Step 11 
+generate the ssh key from the ssh-keygen command 
+ssh-keygen
+provide 3 times enter    (1 location verification + 2 time for passwd )
+
+---------------------------------------------------------------------------------
+
+Part 7 copy the generated ssh keys from ansible_master to target machine and check the connectivity
+
+Step 12 Copy the generated key from ansible_master to remote target 
+
+ssh-copy-id root@172.17.0.3
+yes
+
+Step 13   You should be able to connect via target machine from ansible_master 
+ssh root@172.17.0.3
+
+verify nginx is there or not 
+service nginx status
+
+-----------------------------------------------------------------------------
+
+Part 8 Now create a ansible playbook  and run  ansible-playbook 
+Step 14 :- create a installnginx.yaml file in 
+cd /etc/ansible
+vi  installnginx.yaml
+
+---
+- hosts: all
+  tasks:
+    - name: ensure nginx is at the latest version
+      apt: name=nginx state=latest
+
+
