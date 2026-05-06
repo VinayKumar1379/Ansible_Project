@@ -74,7 +74,7 @@ ansible-inventory --list
 - **To check uptime of all servers**:```
   ansible -a "uptime" server
 ------------------------------------------------------------------------------------------------------------------
- ### 4. Write an Ansible Playbook to Install NGINX
+5. Write an Ansible Playbook to Install NGINX
 
  - **Create the Playbook File**:
   mkdir /ansible-project
