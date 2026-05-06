@@ -1,0 +1,104 @@
+1.Update Your System
+
+**For Debian/Ubuntu**:
+
+  sudo apt update
+  sudo apt upgrade -y
+
+**For RHEL/CentOS**:
+
+  sudo yum update -y
+
+-----------------------------------------------------------------------------------
+2. Install Ansible
+**On Debian/Ubuntu**:
+
+  sudo apt install software-properties-common -y
+  sudo add-apt-repository --yes --update ppa:ansible/ansible
+  sudo apt install ansible -y
+
+
+**On RHEL/CentOS**:
+  On RHEL/CentOS, you can install Ansible by enabling the EPEL repository:
+
+  sudo yum install epel-release -y
+  sudo yum install ansible -y
+------------------------------------------------------------------------------------
+3. Verify Installation
+  ansible --version
+
+You should see output similar to
+
+  ansible [core 2.14.3]
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/user/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.8/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 3.8.10 (default, May  3 2021, 08:55:58) [GCC 10.2.1 20210110]
+--------------------------------------------------------------------------------------
+ **Create a keys directory inside .ssh**:
+
+ mkdir /home/ubuntu/keys
+  cd keys
+  scp -i "ansible-master-key.pem" ansible-master-key.pem ubuntu@ec2-52-15-176-134.us-   east-2.compute.amazonaws.com:/home/ubuntu/keys/
+
+ chmod 400 /home/ubuntu/keys/ansible-master-key.pem
+ ls -l /home/ubuntu/keys/ansible-master-key.pem
+----------------------------------------------------------------------------------------
+4. Set Up Ansible Inventory
+ sudo vim /etc/ansible/hosts
+
+[servers]
+  node1 ansible_host=3.142.79.205
+  node2 ansible_host=3.143.210.190
+
+  [all:vars]
+  ansible_python_interpreter=/usr/bin/python3
+  ansible_user=ubuntu
+  ansible_ssh_private_key_file=/home/ubuntu/keys/ansible-master-key.pem
+-------------------------------------------------------------------------------------------
+**Verify Ansible inventory list**:
+
+  ansible-inventory --list
+------------------------------------------------------------------------------------------------------------------
+**Verify Ansible inventory list**:
+ansible-inventory --list
+
+- **Test Connectivy**:
+  ansible -m ping servers
+- **To check RAM & ROM**:
+  ansible -a "free -h" servers # to check RAM
+  ansible -a "df -h" servers   # to check ROM
+- **To update of all servers**:
+  ansible -a "sudo apt-get update" servers
+- **To check uptime of all servers**:```
+  ansible -a "uptime" server
+------------------------------------------------------------------------------------------------------------------
+ ### 4. Write an Ansible Playbook to Install NGINX
+
+ - **Create the Playbook File**:
+  mkdir /ansible-project
+  cd /ansible-project
+  vi install_nginx.yml
+
+- **Write the Playbook (install_nginx.yml)
+---
+  hosts: servers
+  become: yes  # to use sudo
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: latest
+
+    - name: Start and enable nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+```
+  ansible-playbook -i /etc/ansible/hosts install_nginx.yml
+```
+
+
